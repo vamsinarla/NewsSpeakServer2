@@ -18,37 +18,36 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api import urlfetch
 from django.utils import simplejson as json
-import logging, cgi, datetime
+import logging
+import cgi
+import datetime
 import feeditem
 import feedparser
 
 
 class FeedHandler(webapp.RequestHandler):
-    def get(self):
+    def post(self):
         feed_url = self.request.get('url')
 
-        logging.info("Feedurl in get = " + feed_url)
-        
         try:
-            feedInput = urlfetch.fetch(feed_url)
+            feed_input = urlfetch.fetch(feed_url)
         except:
             raise Exception("Cannot retrieve feedInput url")
         
-        parsed_feed = feedparser.parse(feedInput.content)
+        parsed_feed = feedparser.parse(feed_input.content)
         if parsed_feed.bozo == 1:
             raise Exception("Cannot parse given url")
         
         feed_items = []
         
-        for entry in parsed_feed.entries[:5]:
+        for entry in parsed_feed.entries:
             item = feeditem.feeditem(entry.title,
-                                        entry.link,
-                                        entry.summary)
+                                     entry.link,
+                                     entry.summary)
             item_json = feeditem.feeditemjsonencoder().default(item)
             feed_items.append(item_json)
-            logging.info(item_json)
             
-        self.response.out.write(feed_items)
+        self.response.out.write(json.JSONEncoder().encode(feed_items))
 
 def main():
     application = webapp.WSGIApplication([('/feed', FeedHandler)],
