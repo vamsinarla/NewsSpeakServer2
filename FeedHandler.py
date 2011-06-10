@@ -16,7 +16,7 @@ class FeedHandler(webapp.RequestHandler):
         try:
             feed_input = urlfetch.fetch(feed_url)
         except:
-            raise Exception("Cannot retrieve feedInput url")
+            raise Exception("Cannot retrieve feed_input url")
         
         parsed_feed = feedparser.parse(feed_input.content)
         if parsed_feed.bozo == 1:
