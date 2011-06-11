@@ -39,7 +39,7 @@ class FeedHandler(webapp.RequestHandler):
                                             "entries": feed_items }))
         
 def main():
-    application = webapp.WSGIApplication([('/feed', FeedHandler)],
+    application = webapp.WSGIApplication([('.*', FeedHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 

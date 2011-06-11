@@ -5,17 +5,32 @@ from django.utils import simplejson as json
 import logging
 import cgi
 import datetime
+import alchemyservice
 
 class ArticleHandler(webapp.RequestHandler):
-	alchemy_url = 'http://alchemy.com'
 	
     def post(self):
     	article_url = self.request.get('url')
+    	format = self.request.get('format')
     	
+    	article_content = alchemyservice.alchemyservice().getContent(article_url,
+    												  				 format)
     	
+    	self.response.out.write(article_content)
+
+class ArticleMetadataHandler(webapp.RequestHandler):
+	
+	def post(self):
+		article_url = self.request.get('url')
+		format = self.request.get('format')
+		
+		article_entities = alchemyservice.alchemyservice().getEntityData(article_url,
+														  				 format)
+		self.response.out.write(article_entities)
+		
 def main():
-    application = webapp.WSGIApplication([('/article', ArticleHandler),
-    									 ('/article_meta', ArticleMetaDataHandler)], 
+    application = webapp.WSGIApplication([('/article/content', ArticleHandler),
+    									 ('/article/meta', ArticleMetadataHandler)], 
                                          debug=True)
     util.run_wsgi_app(application)
 
